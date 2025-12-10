@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Duck | The Entanglement</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #e0e0e0;
+            --text-dim: #5c5c5c;
+            --accent-a: #c2c2c2; /* Wallet A - Cold Silver */
+            --accent-b: #6b7a8f; /* Wallet B - Muted Slate */
+            --timeline-color: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: url('dsfd.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Space Mono', monospace;
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dark overlay to ensure text readability over background image */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 5, 0.85);
+            z-index: -1;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border-radius: 50%;
+        }
+
+        .logo-img {
+            height: 100px;
+            width: auto;
+                        border-radius: 50%;
+
+            opacity: 0.9;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-main);
+        }
+
+        .social-link {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            border: 1px solid var(--text-dim);
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: var(--bg-color);
+            background: var(--text-main);
+            border-color: var(--text-main);
+        }
+
+        /* --- Main Content --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .narrative-container {
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 3rem;
+            z-index: 2;
+        }
+
+        h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(180deg, #fff, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- The Visualization --- */
+        .monitor-frame {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            height: 400px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: crosshair;
+        }
+
+        /* Scanline Overlay for Monitor */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.1) 50%,
+                rgba(0,0,0,0.1)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* --- Data Readout --- */
+        .readout-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.75rem;
+            color: var(--text-main);
+            pointer-events: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        .wallet-state span {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.6rem;
+            margin-bottom: 2px;
+        }
+
+        .wallet-a { border-left: 2px solid var(--accent-a); padding-left: 10px; }
+        .wallet-b { border-left: 2px solid var(--accent-b); padding-left: 10px; }
+
+        @media (max-width: 768px) {
+            h2 { font-size: 2rem; }
+            .readout-panel { grid-template-columns: 1fr; gap: 1rem; }
+            .monitor-frame { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="BurnPool (4).png" alt="Dual Duck Logo" class="logo-img">
+            <h1>Dual Duck</h1>
+        </div>
+        <a href="https://twitter.com/placeholder" target="_blank" class="social-link">TWITTER / X</a>
+    </header>
+
+    <main>
+        <div class="narrative-container">
+            <h2>THE DUCK THAT EXISTS<br>IN TWO WALLETS AT ONCE.</h2>
+            <p class="subtitle">
+                The timeline has fractured. Through deep trenches and broken ledgers, the entity has duplicated. 
+                It is no longer singular. It is simultaneous. Grounded in two realities, synced by one origin.
+            </p>
+        </div>
+
+        <div class="monitor-frame">
+            <div class="monitor-header">
+                <span>System: Tracking Dual Existence</span>
+                <span>Status: Entangled</span>
+            </div>
+            
+            <canvas id="trenchCanvas"></canvas>
+            <div class="scanlines"></div>
+
+            <div class="readout-panel">
+                <div class="wallet-state wallet-a">
+                    <span>WALLET ALPHA [STATE]</span>
+                    <div id="readoutA">Waiting for signal...</div>
+                </div>
+                <div class="wallet-state wallet-b">
+                    <span>WALLET OMEGA [STATE]</span>
+                    <div id="readoutB">Waiting for signal...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('trenchCanvas');
+        const ctx = canvas.getContext('2d');
+        const readoutA = document.getElementById('readoutA');
+        const readoutB = document.getElementById('readoutB');
+
+        let width, height;
+        let frame = 0;
+        
+        // Configuration for the two paths
+        const pointsA = [];
+        const pointsB = [];
+        const pointCount = 150; // Number of points on screen
+        let speed = 2;
+        
+        // Mouse interaction
+        let mouseX = 0;
+        let isHovering = false;
+
+        function resize() {
+            width = canvas.parentElement.clientWidth;
+            height = canvas.parentElement.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Initialize points
+        for(let i = 0; i < pointCount; i++) {
+            pointsA.push(height * 0.35); // Upper third
+            pointsB.push(height * 0.65); // Lower third
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            isHovering = true;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isHovering = false;
+        });
+
+        function generateHash() {
+            const chars = "0123456789ABCDEF";
+            let res = "0x";
+            for(let i=0; i<16; i++) res += chars[Math.floor(Math.random() * 16)];
+            return res;
+        }
+
+        function drawPath(points, color, baseY, noiseLevel, isUpper) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+
+            const step = width / (pointCount - 1);
+
+            for(let i = 0; i < points.length; i++) {
+                const x = i * step;
+                let y = points[i];
+
+                // If user is hovering near this x-coordinate, highlight the duality
+                if (isHovering && Math.abs(x - mouseX) < 20) {
+                    ctx.save();
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = color;
+                    ctx.fillStyle = "#fff";
+                    ctx.fillRect(x - 2, y - 2, 4, 4); // Draw node
+                    
+                    // Draw vertical connection line representing the "Duck" spanning wallets
+                    if(isUpper) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        // Connect to the approximate Y of the lower path
+                        // (We access pointsB via index i roughly, technically distinct arrays but synced index)
+                        let yB = pointsB[i]; 
+                        ctx.lineTo(x, yB);
+                        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        
+                        // Update text
+                        if(frame % 5 === 0) { // Throttle text updates
+                           readoutA.innerText = `POS: ${x.toFixed(0)} | HASH: ${generateHash()}`;
+                           readoutB.innerText = `POS: ${x.toFixed(0)} | HASH: ${generateHash()}`;
+                        }
+                    }
+                    ctx.restore();
+                    ctx.beginPath(); // Reset path for the line drawing
+                    ctx.moveTo(x, y);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                }
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Create Grid Background
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let x=0; x<width; x+=50) { ctx.moveTo(x,0); ctx.lineTo(x,height); }
+            for(let y=0; y<height; y+=50) { ctx.moveTo(0,y); ctx.lineTo(width,y); }
+            ctx.stroke();
+
+            // Calculate new points
+            // We want a "Trenching" look - sharp movements, plateaus
+            const time = Date.now() * 0.002;
+            
+            // Generate Noise for Wallet A (Top)
+            let lastA = pointsA[pointsA.length - 1];
+            let noiseA = (Math.random() - 0.5) * 15;
+            // Tendency to return to baseline
+            let targetA = height * 0.35;
+            let driftA = (targetA - lastA) * 0.05;
+            let newA = lastA + noiseA + driftA;
+
+            // Generate Noise for Wallet B (Bottom)
+            // It mirrors A slightly but maintains independence
+            let lastB = pointsB[pointsB.length - 1];
+            let noiseB = (Math.random() - 0.5) * 15;
+            let targetB = height * 0.65;
+            let driftB = (targetB - lastB) * 0.05;
+            let newB = lastB + noiseB + driftB;
+
+            // Occasional "Synchronization" event (The Duck crossing over)
+            if (Math.random() < 0.02) {
+                newA = height * 0.5; // Converge
+                newB = height * 0.5; // Converge
+            }
+
+            pointsA.shift();
+            pointsA.push(newA);
+            
+            pointsB.shift();
+            pointsB.push(newB);
+
+            // Draw Wallet A Path
+            drawPath(pointsA, '#c2c2c2', height * 0.35, 1, true);
+
+            // Draw Wallet B Path
+            drawPath(pointsB, '#6b7a8f', height * 0.65, 1, false);
+
+            // Draw Center Axis
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(0, height/2);
+            ctx.lineTo(width, height/2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Default Text Update (if not hovering)
+            if(!isHovering && frame % 30 === 0) {
+                 readoutA.innerText = "Monitoring chain trench...";
+                 readoutB.innerText = "Monitoring chain trench...";
+            }
+
+            frame++;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
